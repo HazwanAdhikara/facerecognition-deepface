@@ -59,10 +59,12 @@ export default function LandingPage() {
                   </p>
                 </div>
                 <div className="flex flex-col gap-2 min-[400px]:flex-row">
-                  <button className="inline-flex items-center justify-center rounded-md bg-primary text-primary-foreground shadow hover:bg-primary/90 px-4 py-2 text-sm font-medium gap-1">
-                    Get Started
-                    <ArrowRight className="h-4 w-4" />
-                  </button>
+                  <Link href="/compare">
+                    <button className="inline-flex items-center justify-center rounded-md bg-primary text-primary-foreground shadow hover:bg-primary/90 px-4 py-3 text-md font-bold gap-1">
+                      Get Started
+                      <ArrowRight className="h-4 w-4" />
+                    </button>
+                  </Link>
                 </div>
               </div>
               <div className="relative mx-auto aspect-video w-full max-w-[600px] overflow-hidden rounded-xl border bg-muted/50 lg:aspect-square">
