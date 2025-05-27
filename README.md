@@ -1,4 +1,4 @@
-# Facerecognition Deepface
+# Facerecognition Using Deepface
 
 Mata Kuliah: Kecerdasan Artifisial dan Machine Learning (A) <br> <br>
 Dosen Pengampu : Dr. Dwi Sunaryono, S.Kom., M.Kom. <br>
