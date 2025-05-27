@@ -1,7 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { ArrowRight, Code, Layers, SlidersHorizontal } from "lucide-react";
-import faceRecognitionImg from "../../public/facerecognition.jpg";
+import faceRecognitionImg from "../../public/cover.jpg";
 import { ThemeToggle } from "../components/theme-toggle";
 
 export default function LandingPage() {
@@ -55,7 +55,7 @@ export default function LandingPage() {
                   <p className="max-w-[600px] text-muted-foreground md:text-xl font-light/relaxed">
                     Penasaran untuk mencari kembaran Anda di dunia ini? Kami
                     dapat membantu anda menemukannya dengan persentase kemiripan
-                    wajah dengan presisi.
+                    wajah yang akurat.
                   </p>
                 </div>
                 <div className="flex flex-col gap-2 min-[400px]:flex-row">

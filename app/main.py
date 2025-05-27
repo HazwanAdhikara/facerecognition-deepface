@@ -1,8 +1,10 @@
 from flask import Flask, request, jsonify
 from deepface import DeepFace
 import tempfile
+from flask_cors import CORS
 
 app = Flask(__name__)
+CORS(app)
 
 @app.route("/predict", methods=["POST"])
 def predict():
