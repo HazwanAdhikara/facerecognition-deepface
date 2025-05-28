@@ -1,38 +1,49 @@
-'use client';
+"use client";
 
-import React, { useState, useRef, useEffect, DragEvent, ChangeEvent } from 'react';
+import React, {
+  useState,
+  useRef,
+  useEffect,
+  DragEvent,
+  ChangeEvent,
+} from "react";
 import Link from "next/link";
 import { Layers, Code } from "lucide-react";
+import { ThemeToggle } from "../../components/theme-toggle";
 
 const AppHeader = () => {
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-gray-800 bg-black/90 backdrop-blur-lg">
+    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container mx-auto flex h-16 max-w-screen-xl items-center justify-between px-4">
-        <Link href="/" className="flex items-center gap-2" aria-label="Back to Homepage">
-          <Layers className="h-6 w-6 text-sky-400" />
-          <span className="text-xl font-bold text-white">CerminRupa</span>
+        <Link
+          href="/"
+          className="flex items-center gap-2"
+          aria-label="Back to Homepage"
+        >
+          <Layers className="h-6 w-6 text-primary" />
+          <span className="text-xl font-bold">CerminRupa</span>
         </Link>
 
         <nav className="hidden md:flex items-center gap-6">
           <Link
             href="/#features"
-            className="text-sm font-medium text-gray-300 hover:text-white transition-colors"
+            className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
           >
             Features
           </Link>
           <Link
             href="#"
-            className="text-sm font-medium text-gray-300 hover:text-white transition-colors"
+            className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
           >
             About
           </Link>
         </nav>
 
         <div className="flex items-center gap-3">
-          {}
+          <ThemeToggle />
           <Link
             href="/teams"
-            className="inline-flex items-center justify-center rounded-md border border-gray-700 bg-gray-800 px-4 py-2 text-sm font-medium text-gray-300 shadow-sm hover:bg-gray-700 hover:text-white gap-1.5 transition-colors"
+            className="inline-flex items-center justify-center rounded-md border border-input bg-background px-4 py-2 text-sm font-medium shadow-sm hover:bg-accent hover:text-accent-foreground gap-1.5"
           >
             <Code className="h-4 w-4" />
             <span>Developers</span>
@@ -43,7 +54,6 @@ const AppHeader = () => {
   );
 };
 
-
 interface ImageUploadAreaProps {
   onImageSelect: (file: File) => void;
   previewUrl: string | null;
@@ -51,18 +61,25 @@ interface ImageUploadAreaProps {
   inputId: string;
 }
 
-const ImageUploadArea: React.FC<ImageUploadAreaProps> = ({ onImageSelect, previewUrl, labelText, inputId }) => {
+const ImageUploadArea: React.FC<ImageUploadAreaProps> = ({
+  onImageSelect,
+  previewUrl,
+  labelText,
+  inputId,
+}) => {
   const [isDraggingOver, setIsDraggingOver] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const processFile = (file: File | null | undefined) => {
     if (fileInputRef.current) {
-        fileInputRef.current.value = "";
+      fileInputRef.current.value = "";
     }
-    if (file && file.type.startsWith('image/')) {
+    if (file && file.type.startsWith("image/")) {
       onImageSelect(file);
     } else if (file) {
-      alert("Please select an image file. Make sure the file type is an image (e.g., JPG, PNG).");
+      alert(
+        "Please select an image file. Make sure the file type is an image (e.g., JPG, PNG)."
+      );
     }
   };
 
@@ -101,7 +118,10 @@ const ImageUploadArea: React.FC<ImageUploadAreaProps> = ({ onImageSelect, previe
 
   return (
     <div className="flex flex-col items-center w-full">
-      <label htmlFor={inputId} className="block mb-3 font-semibold text-lg text-center text-gray-300">
+      <label
+        htmlFor={inputId}
+        className="block mb-3 font-semibold text-lg text-center"
+      >
         {labelText}
       </label>
       <div
@@ -109,23 +129,44 @@ const ImageUploadArea: React.FC<ImageUploadAreaProps> = ({ onImageSelect, previe
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
-        className={`relative w-full max-w-xs sm:max-w-sm md:w-72 h-72 bg-gray-800 border-2 rounded-xl flex flex-col items-center justify-center cursor-pointer transition-all duration-150 ease-in-out group hover:border-gray-500
-                    ${isDraggingOver ? 'border-blue-500 bg-gray-700 scale-105' : 'border-gray-600'}`}
+        className={`relative w-full max-w-xs sm:max-w-sm md:w-72 h-72 bg-muted border-2 rounded-xl flex flex-col items-center justify-center cursor-pointer transition-all duration-150 ease-in-out group hover:border-accent
+                    ${
+                      isDraggingOver
+                        ? "border-primary bg-accent scale-105"
+                        : "border-border"
+                    }`}
         role="button"
         tabIndex={0}
-        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') handleClick(); }}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") handleClick();
+        }}
         aria-label={`Upload ${labelText}`}
       >
         {previewUrl ? (
-          <img src={previewUrl} alt={`${labelText} preview`} className="w-full h-full object-cover rounded-xl" />
+          <img
+            src={previewUrl}
+            alt={`${labelText} preview`}
+            className="w-full h-full object-cover rounded-xl"
+          />
         ) : (
-          <div className="text-center text-gray-400 p-4">
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 mx-auto mb-3 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
+          <div className="text-center text-muted-foreground p-4">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-12 w-12 mx-auto mb-3 text-muted-foreground"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth="1.5"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"
+              />
             </svg>
             <p className="text-sm leading-tight">Drag and drop file</p>
-            <p className="text-xs text-gray-500 my-1.5">or</p>
-            <span className="text-sm font-medium text-indigo-400 group-hover:text-indigo-300">
+            <p className="text-xs text-muted-foreground/70 my-1.5">or</p>
+            <span className="text-sm font-medium text-primary group-hover:text-primary/80">
               Browse Files
             </span>
           </div>
@@ -192,7 +233,7 @@ export default function ComparePage() {
     try {
       const res = await fetch("http://localhost:8000/predict", {
         method: "POST",
-        body: formData
+        body: formData,
       });
 
       const data = await res.json();
@@ -204,18 +245,22 @@ export default function ComparePage() {
       }
     } catch (err) {
       console.error("API call failed:", err);
-      setError("Failed to connect to the server or an unexpected error occurred.");
+      setError(
+        "Failed to connect to the server or an unexpected error occurred."
+      );
     }
 
     setLoading(false);
   };
 
   return (
-    <div className="bg-black text-gray-200 min-h-screen flex flex-col">
+    <div className="bg-background text-foreground min-h-screen flex flex-col">
       <AppHeader />
       <main className="flex-grow p-6 md:p-10 flex flex-col items-center">
         <div className="w-full max-w-4xl">
-          <h1 className="text-3xl lg:text-4xl font-bold mb-8 text-center text-white">Compare Faces</h1>
+          <h1 className="text-3xl lg:text-4xl font-bold mb-8 text-center">
+            Compare Faces
+          </h1>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-10 mb-8">
             <ImageUploadArea
@@ -235,22 +280,51 @@ export default function ComparePage() {
           <div className="flex justify-center mb-8">
             <button
               onClick={handleCompare}
-              className="bg-gray-600 text-white px-8 py-3 rounded-lg text-lg font-semibold hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="bg-primary text-primary-foreground px-8 py-3 rounded-lg text-lg font-semibold hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               disabled={loading || !img1 || !img2}
             >
               {loading ? "Comparing..." : "Compare"}
             </button>
           </div>
 
-          {error && <p className="text-red-400 text-center mt-4 mb-6 bg-red-900/30 p-3 rounded-md">{error}</p>}
+          {error && (
+            <p className="text-red-400 text-center mt-4 mb-6 bg-red-900/30 dark:bg-red-900/10 p-3 rounded-md">
+              {error}
+            </p>
+          )}
 
           {result && (
-            <div className="mt-6 p-6 rounded-lg bg-white shadow-xl text-black max-w-md mx-auto">
-              <h2 className="text-2xl font-bold mb-4 text-gray-800 text-center">Result</h2>
+            <div className="mt-6 p-6 rounded-lg bg-card text-card-foreground shadow-xl max-w-md mx-auto border">
+              <h2 className="text-2xl font-bold mb-4 text-center">
+                Result
+              </h2>
               <div className="space-y-2">
-                <p><strong className="font-medium text-gray-700">Distance:</strong> {typeof result.distance === 'number' ? result.distance.toFixed(17) : result.distance}</p>
-                <p><strong className="font-medium text-gray-700">Similarity:</strong> {typeof result.similarity === 'number' ? result.similarity.toFixed(2) + '%' : result.similarity}</p>
-                <p><strong className="font-medium text-gray-700">Verified:</strong> {result.verified ? <span className="text-green-600 font-semibold">Yes ✅</span> : <span className="text-red-600 font-semibold">No ❌</span>}</p>
+                <p>
+                  <strong className="font-medium">
+                    Distance:
+                  </strong>{" "}
+                  {typeof result.distance === "number"
+                    ? result.distance.toFixed(17)
+                    : result.distance}
+                </p>
+                <p>
+                  <strong className="font-medium">
+                    Similarity:
+                  </strong>{" "}
+                  {typeof result.similarity === "number"
+                    ? result.similarity.toFixed(2) + "%"
+                    : result.similarity}
+                </p>
+                <p>
+                  <strong className="font-medium">
+                    Verified:
+                  </strong>{" "}
+                  {result.verified ? (
+                    <span className="text-green-600 font-semibold">Yes ✅</span>
+                  ) : (
+                    <span className="text-red-600 font-semibold">No ❌</span>
+                  )}
+                </p>
               </div>
             </div>
           )}

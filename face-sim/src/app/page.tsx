@@ -1,7 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { ArrowRight, Code, Layers, SlidersHorizontal } from "lucide-react";
-import faceRecognitionImg from "../../public/cover.jpg";
+import faceRecognitionImg from "../img/cover.jpg";
 import { ThemeToggle } from "../components/theme-toggle";
 
 export default function LandingPage() {
