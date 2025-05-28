@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+<<<<<<< Updated upstream
 import { Github, Linkedin, Layers, Code } from "lucide-react"; 
 import hazwanImg from "../../img/hazwan.JPEG"; 
 import rafaImg from "../../img/rafa.png"; 
@@ -43,6 +44,11 @@ const AppHeader = () => {
   );
 };
 
+=======
+import { Github, Linkedin } from "lucide-react";
+import hazwanImg from "../../img/hazwan.jpg";
+import rafaImg from "../../img/rafa.png";
+>>>>>>> Stashed changes
 
 export default function DevelopersPage() {
   return (
