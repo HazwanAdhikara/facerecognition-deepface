@@ -22,10 +22,16 @@ export default function LandingPage() {
               Features
             </Link>
             <Link
-              href="#"
+              href="#about"
               className="text-sm font-medium hover:underline underline-offset-4"
             >
               About
+            </Link>
+            <Link
+              href="/compare"
+              className="text-sm font-medium hover:underline underline-offset-4"
+            >
+              Compare Now!
             </Link>
           </nav>
 

@@ -8,177 +8,223 @@ import React, {
   ChangeEvent,
 } from "react";
 import Link from "next/link";
-import { Layers, Code } from "lucide-react";
-import { ThemeToggle } from "../../components/theme-toggle";
+import {
+  Layers,
+  Code,
+  Upload,
+  Camera,
+  Zap,
+  CheckCircle,
+  XCircle,
+} from "lucide-react";
+import { ThemeToggle } from "@/components/theme-toggle";
+import Webcam from "react-webcam";
 
-const AppHeader = () => {
-  return (
-    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container mx-auto flex h-16 max-w-screen-xl items-center justify-between px-4">
+const MODELS = [
+  "VGG-Face",
+  "Facenet",
+  "Facenet512",
+  "OpenFace",
+  "DeepID",
+  "ArcFace",
+  "SFace",
+];
+
+const AppHeader: React.FC = () => (
+  <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <div className="container mx-auto flex h-16 max-w-screen-xl items-center justify-between px-4">
+      <Link
+        href="/"
+        aria-label="Back to Homepage"
+        className="flex items-center gap-2"
+      >
+        <Layers className="h-6 w-6 text-primary" />
+        <span className="text-xl font-bold">CerminRupa</span>
+      </Link>
+      <nav className="hidden md:flex items-center gap-8">
         <Link
-          href="/"
-          className="flex items-center gap-2"
-          aria-label="Back to Homepage"
+          href="/#features"
+          className="text-sm font-medium hover:underline underline-offset-4"
         >
-          <Layers className="h-6 w-6 text-primary" />
-          <span className="text-xl font-bold">CerminRupa</span>
+          Features
         </Link>
-
-        <nav className="hidden md:flex items-center gap-6">
-          <Link
-            href="/#features"
-            className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
-          >
-            Features
-          </Link>
-          <Link
-            href="#"
-            className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
-          >
-            About
-          </Link>
-        </nav>
-
-        <div className="flex items-center gap-3">
-          <ThemeToggle />
-          <Link
-            href="/teams"
-            className="inline-flex items-center justify-center rounded-md border border-input bg-background px-4 py-2 text-sm font-medium shadow-sm hover:bg-accent hover:text-accent-foreground gap-1.5"
-          >
-            <Code className="h-4 w-4" />
-            <span>Developers</span>
-          </Link>
-        </div>
+        <Link
+          href="/#about"
+          className="text-sm font-medium hover:underline underline-offset-4"
+        >
+          About
+        </Link>
+        <Link
+          href="/compare"
+          className="text-sm font-medium hover:underline underline-offset-4"
+        >
+          Compare Now!
+        </Link>
+      </nav>
+      <div className="flex items-center gap-2">
+        <ThemeToggle />
+        <Link
+          href="/teams"
+          className="inline-flex items-center justify-center rounded-md border border-input bg-background px-4 py-2 text-sm font-medium shadow-sm hover:bg-accent hover:text-accent-foreground gap-1"
+        >
+          <Code className="h-4 w-4" />
+          <span>Developers</span>
+        </Link>
       </div>
-    </header>
-  );
-};
+    </div>
+  </header>
+);
 
-interface ImageUploadAreaProps {
-  onImageSelect: (file: File) => void;
+interface ImageInputProps {
+  label: string;
   previewUrl: string | null;
-  labelText: string;
-  inputId: string;
+  onMediaSelect: (file: File) => void;
 }
 
-const ImageUploadArea: React.FC<ImageUploadAreaProps> = ({
-  onImageSelect,
+const ImageInput: React.FC<ImageInputProps> = ({
+  label,
   previewUrl,
-  labelText,
-  inputId,
+  onMediaSelect,
 }) => {
-  const [isDraggingOver, setIsDraggingOver] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [mode, setMode] = useState<"upload" | "camera">("upload");
+  const [isDragging, setIsDragging] = useState(false);
+  const fileRef = useRef<HTMLInputElement>(null);
+  const webcamRef = useRef<Webcam>(null);
 
-  const processFile = (file: File | null | undefined) => {
-    if (fileInputRef.current) {
-      fileInputRef.current.value = "";
-    }
-    if (file && file.type.startsWith("image/")) {
-      onImageSelect(file);
-    } else if (file) {
-      alert(
-        "Please select an image file. Make sure the file type is an image (e.g., JPG, PNG)."
-      );
-    }
+  useEffect(() => {
+    return () => {
+      previewUrl && URL.revokeObjectURL(previewUrl);
+    };
+  }, [previewUrl]);
+
+  const handleFile = (file?: File | null) => {
+    if (!file) return;
+    if (!file.type.startsWith("image/")) return alert("Select a valid image");
+    onMediaSelect(file);
   };
+
+  const handleUploadClick = () => fileRef.current?.click();
 
   const handleDragOver = (e: DragEvent<HTMLDivElement>) => {
     e.preventDefault();
-    e.stopPropagation();
-    setIsDraggingOver(true);
+    setIsDragging(true);
   };
-
-  const handleDragLeave = (e: DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setIsDraggingOver(false);
-  };
-
+  const handleDragLeave = () => setIsDragging(false);
   const handleDrop = (e: DragEvent<HTMLDivElement>) => {
     e.preventDefault();
-    e.stopPropagation();
-    setIsDraggingOver(false);
-    const files = e.dataTransfer.files;
-    if (files && files.length > 0) {
-      processFile(files[0]);
-    }
+    setIsDragging(false);
+    handleFile(e.dataTransfer.files[0]);
   };
 
-  const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (files && files.length > 0) {
-      processFile(files[0]);
+  const capture = () => {
+    const imageSrc = webcamRef.current?.getScreenshot();
+    if (imageSrc) {
+      fetch(imageSrc)
+        .then((res) => res.blob())
+        .then((blob) => {
+          const file = new File([blob], `${label}.jpg`, { type: "image/jpeg" });
+          onMediaSelect(file);
+        });
     }
-  };
-
-  const handleClick = () => {
-    fileInputRef.current?.click();
   };
 
   return (
     <div className="flex flex-col items-center w-full">
-      <label
-        htmlFor={inputId}
-        className="block mb-3 font-semibold text-lg text-center"
-      >
-        {labelText}
-      </label>
-      <div
-        onClick={handleClick}
-        onDragOver={handleDragOver}
-        onDragLeave={handleDragLeave}
-        onDrop={handleDrop}
-        className={`relative w-full max-w-xs sm:max-w-sm md:w-72 h-72 bg-muted border-2 rounded-xl flex flex-col items-center justify-center cursor-pointer transition-all duration-150 ease-in-out group hover:border-accent
-                    ${
-                      isDraggingOver
-                        ? "border-primary bg-accent scale-105"
-                        : "border-border"
-                    }`}
-        role="button"
-        tabIndex={0}
-        onKeyDown={(e) => {
-          if (e.key === "Enter" || e.key === " ") handleClick();
-        }}
-        aria-label={`Upload ${labelText}`}
-      >
-        {previewUrl ? (
-          <img
-            src={previewUrl}
-            alt={`${labelText} preview`}
-            className="w-full h-full object-cover rounded-xl"
-          />
-        ) : (
-          <div className="text-center text-muted-foreground p-4">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-12 w-12 mx-auto mb-3 text-muted-foreground"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              strokeWidth="1.5"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"
+      <div className="flex gap-2 mb-4 p-1 bg-muted rounded-lg">
+        <button
+          onClick={() => setMode("upload")}
+          className={`px-4 py-2 rounded-md text-sm font-medium transition-all duration-200 flex items-center gap-2 ${
+            mode === "upload"
+              ? "bg-background text-foreground shadow-sm"
+              : "text-muted-foreground hover:text-foreground"
+          }`}
+        >
+          <Upload className="h-4 w-4" />
+          Upload
+        </button>
+        <button
+          onClick={() => setMode("camera")}
+          className={`px-4 py-2 rounded-md text-sm font-medium transition-all duration-200 flex items-center gap-2 ${
+            mode === "camera"
+              ? "bg-background text-foreground shadow-sm"
+              : "text-muted-foreground hover:text-foreground"
+          }`}
+        >
+          <Camera className="h-4 w-4" />
+          Camera
+        </button>
+      </div>
+
+      {mode === "upload" ? (
+        <div
+          onClick={handleUploadClick}
+          onDragOver={handleDragOver}
+          onDragLeave={handleDragLeave}
+          onDrop={handleDrop}
+          className={`relative w-full max-w-xs h-80 bg-gradient-to-br from-muted/50 to-muted border-2 border-dashed rounded-2xl flex flex-col items-center justify-center cursor-pointer transition-all duration-300 hover:shadow-lg group ${
+            isDragging
+              ? "border-primary bg-primary/5 scale-105 shadow-xl"
+              : "border-border hover:border-primary/50"
+          }`}
+        >
+          {previewUrl ? (
+            <div className="relative w-full h-full">
+              <img
+                src={previewUrl || "/placeholder.svg"}
+                alt="preview"
+                className="w-full h-full object-cover rounded-2xl"
               />
-            </svg>
-            <p className="text-sm leading-tight">Drag and drop file</p>
-            <p className="text-xs text-muted-foreground/70 my-1.5">or</p>
-            <span className="text-sm font-medium text-primary group-hover:text-primary/80">
-              Browse Files
-            </span>
+              <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-200 rounded-2xl flex items-center justify-center">
+                <p className="text-white font-medium">Click to change</p>
+              </div>
+            </div>
+          ) : (
+            <div className="text-center text-muted-foreground p-6">
+              <Upload className="h-12 w-12 mx-auto mb-4 text-muted-foreground/50 group-hover:text-primary transition-colors duration-200" />
+              <p className="font-medium mb-2">Drag & drop your image</p>
+              <p className="text-sm">or click to browse</p>
+            </div>
+          )}
+          <input
+            type="file"
+            accept="image/*"
+            ref={fileRef}
+            onChange={(e) => handleFile(e.target.files?.[0])}
+            className="hidden"
+          />
+        </div>
+      ) : (
+        <div className="flex flex-col items-center">
+          <div className="relative rounded-2xl overflow-hidden shadow-lg">
+            <Webcam
+              audio={false}
+              ref={webcamRef}
+              screenshotFormat="image/jpeg"
+              className="rounded-2xl"
+              width={320}
+              height={240}
+            />
           </div>
-        )}
-        <input
-          type="file"
-          id={inputId}
-          ref={fileInputRef}
-          onChange={handleFileChange}
-          accept="image/*,.jpeg,.png,.jpg,.gif,.webp"
-          className="hidden"
-        />
+          <button
+            onClick={capture}
+            className="mt-4 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white px-6 py-3 rounded-xl font-medium transition-all duration-200 hover:shadow-lg transform hover:scale-105 flex items-center gap-2"
+          >
+            <Camera className="h-4 w-4" />
+            Capture Photo
+          </button>
+          {previewUrl && (
+            <div className="mt-4 relative">
+              <img
+                src={previewUrl || "/placeholder.svg"}
+                alt="captured preview"
+                className="w-80 h-60 object-cover rounded-2xl shadow-lg"
+              />
+            </div>
+          )}
+        </div>
+      )}
+      <div className="mt-4 px-4 py-2 bg-muted/50 rounded-lg">
+        <span className="font-medium text-sm">{label}</span>
       </div>
     </div>
   );
@@ -189,142 +235,213 @@ export default function ComparePage() {
   const [img2, setImg2] = useState<File | null>(null);
   const [preview1, setPreview1] = useState<string | null>(null);
   const [preview2, setPreview2] = useState<string | null>(null);
+  const [model, setModel] = useState<string>(MODELS[2]);
   const [result, setResult] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    return () => {
-      if (preview1) URL.revokeObjectURL(preview1);
-      if (preview2) URL.revokeObjectURL(preview2);
-    };
-  }, [preview1, preview2]);
+  useEffect(
+    () => () => {
+      preview1 && URL.revokeObjectURL(preview1);
+      preview2 && URL.revokeObjectURL(preview2);
+    },
+    [preview1, preview2]
+  );
 
-  const handleImage1Selected = (file: File) => {
+  const handleSelect1 = (file: File) => {
     setImg1(file);
-    if (preview1) URL.revokeObjectURL(preview1);
+    preview1 && URL.revokeObjectURL(preview1);
     setPreview1(URL.createObjectURL(file));
     setError(null);
     setResult(null);
   };
 
-  const handleImage2Selected = (file: File) => {
+  const handleSelect2 = (file: File) => {
     setImg2(file);
-    if (preview2) URL.revokeObjectURL(preview2);
+    preview2 && URL.revokeObjectURL(preview2);
     setPreview2(URL.createObjectURL(file));
     setError(null);
     setResult(null);
   };
 
   const handleCompare = async () => {
-    if (!img1 || !img2) {
-      setError("Please select both images");
-      return;
-    }
-
-    const formData = new FormData();
-    formData.append("img1", img1);
-    formData.append("img2", img2);
-
+    if (!img1 || !img2) return setError("Please provide both images.");
     setLoading(true);
     setError(null);
     setResult(null);
-
+    const form = new FormData();
+    form.append("img1", img1);
+    form.append("img2", img2);
+    form.append("model_name", model);
     try {
-      const res = await fetch("http://localhost:8000/predict", {
+      const res = await fetch("http://localhost:8000/compare", {
         method: "POST",
-        body: formData,
+        body: form,
       });
-
       const data = await res.json();
-
-      if (!res.ok) {
-        setError(data.error || "Something went wrong");
-      } else {
-        setResult(data);
-      }
-    } catch (err) {
-      console.error("API call failed:", err);
-      setError(
-        "Failed to connect to the server or an unexpected error occurred."
-      );
+      if (!res.ok) setError(data.error || "Error comparing");
+      else setResult(data);
+    } catch {
+      setError("Server error or network issue");
     }
-
     setLoading(false);
   };
 
+  const getSimilarityColor = (similarity: number | string): string => {
+    const value =
+      typeof similarity === "string" ? parseFloat(similarity) : similarity;
+    return value >= 65 ? "text-green-500" : "text-red-500";
+  };
+
   return (
-    <div className="bg-background text-foreground min-h-screen flex flex-col">
+    <div className="bg-gradient-to-br from-background via-background to-muted/20 text-foreground min-h-screen flex flex-col">
       <AppHeader />
       <main className="flex-grow p-6 md:p-10 flex flex-col items-center">
-        <div className="w-full max-w-4xl">
-          <h1 className="text-3xl lg:text-4xl font-bold mb-8 text-center">
-            Compare Faces
-          </h1>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-10 mb-8">
-            <ImageUploadArea
-              labelText="Image 1"
-              inputId="image1-upload"
-              previewUrl={preview1}
-              onImageSelect={handleImage1Selected}
-            />
-            <ImageUploadArea
-              labelText="Image 2"
-              inputId="image2-upload"
-              previewUrl={preview2}
-              onImageSelect={handleImage2Selected}
-            />
+        <div className="w-full max-w-6xl">
+          {/* Hero Section */}
+          <div className="text-center mb-12">
+            <h1 className="text-4xl lg:text-6xl font-bold mb-4 bg-gradient-to-r from-blue-600 via-purple-600 to-blue-800 bg-clip-text text-transparent">
+              Compare Faces
+            </h1>
+            <p className="text-lg max-w-2xl mx-auto">
+              Seberapa Mirip wajah Anda dengan orang lain? Unggah dua foto dan
+              temukan persentase kemiripan wajah Anda dengan orang lain.
+            </p>
           </div>
 
-          <div className="flex justify-center mb-8">
+          {/* Image Input Section */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
+            <div className="bg-card/50 backdrop-blur-sm border rounded-3xl p-8 shadow-lg hover:shadow-xl transition-all duration-300">
+              <ImageInput
+                label="First Image"
+                previewUrl={preview1}
+                onMediaSelect={handleSelect1}
+              />
+            </div>
+            <div className="bg-card/50 backdrop-blur-sm border rounded-3xl p-8 shadow-lg hover:shadow-xl transition-all duration-300">
+              <ImageInput
+                label="Second Image"
+                previewUrl={preview2}
+                onMediaSelect={handleSelect2}
+              />
+            </div>
+          </div>
+
+          {/* Controls Section */}
+          <div className="flex flex-col items-center gap-6 mb-12">
+            <div className="bg-card/50 backdrop-blur-sm border rounded-2xl p-6 shadow-lg">
+              <label className="block text-sm font-medium mb-3 text-center">
+                Select AI Model
+              </label>
+              <select
+                value={model}
+                onChange={(e) => setModel(e.target.value)}
+                className="w-full min-w-[200px] rounded-xl border border-input bg-background px-4 py-3 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-200"
+              >
+                {MODELS.map((m) => (
+                  <option key={m} value={m}>
+                    {m}
+                  </option>
+                ))}
+              </select>
+            </div>
+
             <button
               onClick={handleCompare}
-              className="bg-primary text-primary-foreground px-8 py-3 rounded-lg text-lg font-semibold hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               disabled={loading || !img1 || !img2}
+              className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 disabled:from-gray-400 disabled:to-gray-500 text-white px-12 py-4 rounded-2xl font-semibold text-lg shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 transform hover:scale-105 disabled:hover:scale-100 flex items-center gap-3"
             >
-              {loading ? "Comparing..." : "Compare"}
+              {loading ? (
+                <>
+                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                  Analyzing...
+                </>
+              ) : (
+                <>
+                  <Zap className="h-5 w-5" />
+                  Compare Faces
+                </>
+              )}
             </button>
           </div>
 
+          {/* Error Display */}
           {error && (
-            <p className="text-red-400 text-center mt-4 mb-6 bg-red-900/30 dark:bg-red-900/10 p-3 rounded-md">
-              {error}
-            </p>
+            <div className="max-w-md mx-auto mb-8">
+              <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-2xl p-6 flex items-center gap-3">
+                <XCircle className="h-6 w-6 text-red-500 flex-shrink-0" />
+                <p className="text-red-700 dark:text-red-300 font-medium">
+                  {error}
+                </p>
+              </div>
+            </div>
           )}
 
+          {/* Results Section */}
           {result && (
-            <div className="mt-6 p-6 rounded-lg bg-card text-card-foreground shadow-xl max-w-md mx-auto border">
-              <h2 className="text-2xl font-bold mb-4 text-center">
-                Result
-              </h2>
-              <div className="space-y-2">
-                <p>
-                  <strong className="font-medium">
-                    Distance:
-                  </strong>{" "}
-                  {typeof result.distance === "number"
-                    ? result.distance.toFixed(17)
-                    : result.distance}
-                </p>
-                <p>
-                  <strong className="font-medium">
-                    Similarity:
-                  </strong>{" "}
-                  {typeof result.similarity === "number"
-                    ? result.similarity.toFixed(2) + "%"
-                    : result.similarity}
-                </p>
-                <p>
-                  <strong className="font-medium">
-                    Verified:
-                  </strong>{" "}
-                  {result.verified ? (
-                    <span className="text-green-600 font-semibold">Yes ✅</span>
-                  ) : (
-                    <span className="text-red-600 font-semibold">No ❌</span>
-                  )}
-                </p>
+            <div className="max-w-2xl mx-auto">
+              <div className="bg-gradient-to-br from-card/80 to-card/40 backdrop-blur-sm border rounded-3xl p-8 shadow-xl">
+                <div className="flex items-center gap-3 mb-6">
+                  <CheckCircle className="h-8 w-8 text-green-500" />
+                  <h2 className="text-3xl font-bold">Analysis Complete</h2>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-4">
+                    <div className="bg-muted/50 rounded-xl p-4">
+                      <p className="text-sm text-muted-foreground mb-1">
+                        Distance
+                      </p>
+                      <p className="text-2xl font-mono font-bold">
+                        {result.distance.toFixed(4)}
+                      </p>
+                    </div>
+
+                    <div className="bg-muted/50 rounded-xl p-4">
+                      <p className="text-sm text-muted-foreground mb-1">
+                        Similarity
+                      </p>
+                      <p
+                        className={`text-2xl font-bold ${getSimilarityColor(
+                          result.similarity
+                        )}`}
+                      >
+                        {parseFloat(result.similarity).toFixed(2)}%
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="space-y-4">
+                    <div className="bg-muted/50 rounded-xl p-4">
+                      <p className="text-sm text-muted-foreground mb-1">
+                        Model Used
+                      </p>
+                      <p className="text-lg font-semibold">
+                        {result.model_used}
+                      </p>
+                    </div>
+
+                    <div className="bg-muted/50 rounded-xl p-4">
+                      <p className="text-sm text-muted-foreground mb-1">
+                        Verification
+                      </p>
+                      <div className="flex items-center gap-2">
+                        {result.verified ? (
+                          <CheckCircle className="h-5 w-5 text-green-500" />
+                        ) : (
+                          <XCircle className="h-5 w-5 text-red-500" />
+                        )}
+                        <p
+                          className={`text-lg font-semibold ${
+                            result.verified ? "text-green-500" : "text-red-500"
+                          }`}
+                        >
+                          {result.verified ? "Verified Match" : "No Match"}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           )}
