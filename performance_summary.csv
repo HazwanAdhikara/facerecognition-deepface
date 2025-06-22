@@ -1,0 +1,13 @@
+Model,Backend,Metric,Accuracy,Precision,Recall (Sensitivity),F1-Score,TP,TN,FP,FN
+ArcFace,opencv,cosine,0.8924,1.0,0.8845,0.9387,337,28,0,44
+ArcFace,mtcnn,cosine,0.8465,0.9973,0.8333,0.908,375,44,1,75
+ArcFace,retinaface,cosine,0.8303,0.9973,0.8156,0.8973,367,44,1,83
+ArcFace,ssd,cosine,0.8081,0.9972,0.7911,0.8823,356,44,1,94
+Facenet,opencv,cosine,0.6161,1.0,0.5879,0.7405,224,28,0,157
+Facenet,retinaface,cosine,0.6202,1.0,0.5822,0.736,262,45,0,188
+Facenet,ssd,cosine,0.598,1.0,0.5578,0.7161,251,45,0,199
+Facenet,mtcnn,cosine,0.5778,1.0,0.5356,0.6975,241,45,0,209
+OpenFace,opencv,cosine,0.1198,1.0,0.0551,0.1045,21,28,0,360
+OpenFace,retinaface,cosine,0.1253,1.0,0.0378,0.0728,17,45,0,433
+OpenFace,mtcnn,cosine,0.1232,1.0,0.0356,0.0687,16,45,0,434
+OpenFace,ssd,cosine,0.1172,0.9333,0.0311,0.0602,14,44,1,436
